@@ -1,0 +1,62 @@
+services:
+  fishing-server:
+    build:
+      context: .
+    env_file: .env
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+    # networks:
+    #   - common-service-network
+    restart: always
+    command: yarn start --watch
+
+  redis:
+    image: redis/redis-stack:7.2.0-v6
+    container_name: redistack
+    labels:
+      - 'name=redis'
+      - 'mode=standalone'
+    ports:
+      - 6379:6379
+      - 13333:8001
+    mem_limit: '200m'
+    command: >
+      ./entrypoint.sh
+      --maxmemory 200000000
+
+  pgweb:
+    container_name: pgweb
+    image: sosedoff/pgweb
+    ports:
+      - '8081:8081'
+    entrypoint: ['/bin/bash', '-c']
+    command:
+      - |
+        /usr/bin/pgweb --bind=0.0.0.0 --listen=8081 --sessions --skip-open
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file: .env
+    ports:
+      - '5050:80'
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+  postgres:
+    container_name: postgres
+    image: postgres:12
+    env_file: .env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-q', '-d', 'postgres', '-U', 'postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
+  pgadmin-data:
