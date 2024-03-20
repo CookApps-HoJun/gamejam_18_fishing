@@ -5,8 +5,14 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DataModule } from './data/data.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './common/guards/jwt-auth-guard';
+import { RankModule } from './rank/rank.module';
+import {
+  ServerStatusInterceptor,
+  TransformInterceptor,
+} from './common/interceptors';
+import { GlobalExceptionFilter } from './common/filters/global_exception.filter';
 
 @Module({
   imports: [
@@ -30,6 +36,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth-guard';
     }),
     AuthModule,
     DataModule,
+    RankModule,
   ],
   controllers: [AppController],
   providers: [
@@ -37,6 +44,18 @@ import { JwtAuthGuard } from './common/guards/jwt-auth-guard';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TransformInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ServerStatusInterceptor,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
     },
   ],
 })

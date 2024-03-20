@@ -1,5 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { Public } from './common/decorators/public.decorator';
+import { BaseReqParam } from './common/params/BaseReqParam';
 
 @Controller()
 export class AppController {
@@ -8,5 +10,18 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  @Get('time')
+  @Public()
+  time(): number {
+    return Math.floor(Date.now() / 1000);
+  }
+
+  @Post('version')
+  getVersion(@Body() { p, d, v }: BaseReqParam) {
+    return {
+      version: 1000,
+    };
   }
 }
