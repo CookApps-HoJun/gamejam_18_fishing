@@ -1,8 +1,7 @@
-
 ##############
 # Base Stage #
 ##############
-FROM node:18-alpine  as base
+FROM node:18-alpine as base
 
 # /app 디렉터리를 WORKDIR로 설정
 WORKDIR /app
@@ -11,18 +10,34 @@ WORKDIR /app
 COPY package.json yarn.lock ./
 
 # package 설치
-RUN yarn
+RUN --mount=type=secret,id=npmrc,target=.npmrc yarn --production
 
-##############
-# dev Stage #
-##############
-FROM base
+#############
+# Dev Stage #
+#############
+FROM base as dev
+
+# 소스 복사
 COPY . .
 RUN ls -l
 
-ENV GENERATE_SOURCEMAP=false
-ENV NODE_OPTIONS=--max-old-space-size=4096
+RUN --mount=type=secret,id=npmrc,target=.npmrc yarn
 
-RUN yarn
+# Nest Build
+RUN yarn build
 
-CMD ["yarn", "start:dev"]
+#############
+# Run Stage #
+#############
+FROM node:18-alpine
+
+# /app 디렉터리를 WORKDIR로 설정
+WORKDIR /app
+
+# build phase에서 만든 배포용 js, 설치 한 modules, package 스크립트 복사
+COPY --from=base /app/package.json ./
+COPY --from=dev /app/dist ./dist
+COPY --from=base /app/node_modules ./node_modules
+
+# 실행할 명령어
+ENTRYPOINT ["node", "dist/main.js"]
