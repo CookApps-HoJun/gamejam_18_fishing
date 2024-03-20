@@ -4,6 +4,7 @@ import { Public } from './common/decorators/public.decorator';
 import { BaseReqParam } from './common/params/BaseReqParam';
 
 @Controller()
+@Public()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
@@ -13,7 +14,6 @@ export class AppController {
   }
 
   @Get('time')
-  @Public()
   time(): number {
     return Math.floor(Date.now() / 1000);
   }
@@ -21,7 +21,7 @@ export class AppController {
   @Post('version')
   getVersion(@Body() { p, d, v }: BaseReqParam) {
     return {
-      version: 1000,
+      version: 1001,
     };
   }
 }
