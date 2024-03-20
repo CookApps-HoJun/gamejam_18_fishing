@@ -78,7 +78,7 @@ export class AuthService {
 
     return {
       uid,
-      access_token: this.jwtService.sign({ uid, d }),
+      token: this.jwtService.sign({ uid, d }),
     };
   }
 }
