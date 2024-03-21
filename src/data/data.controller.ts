@@ -16,9 +16,9 @@ export class DataController {
   constructor(private readonly dataService: DataService) {}
 
   @Post('get')
-  get(@Body() data: DataDto, @Req() { user }) {
+  get(@Req() { user }) {
     const { uid } = user;
-    return this.dataService.get(uid, data);
+    return this.dataService.get(uid);
   }
   @Post('set')
   set(@Body() data: DataDto, @Req() { user }) {

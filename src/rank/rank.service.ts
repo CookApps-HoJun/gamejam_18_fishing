@@ -1,26 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { CreateRankDto } from './dto/create-rank.dto';
-import { UpdateRankDto } from './dto/update-rank.dto';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
+import { Redis } from 'ioredis';
 @Injectable()
 export class RankService {
-  create(createRankDto: CreateRankDto) {
-    return 'This action adds a new rank';
-  }
+  constructor(@InjectRedis() private readonly redis: Redis) {}
 
-  findAll() {
-    return `This action returns all rank`;
-  }
+  get() {}
 
-  findOne(id: number) {
-    return `This action returns a #${id} rank`;
-  }
+  async set(key, score, uid, data) {
+    console.log({ key, score, uid, data });
 
-  update(id: number, updateRankDto: UpdateRankDto) {
-    return `This action updates a #${id} rank`;
-  }
+    const zkey = `RANK:${key}:`;
+    const hKey = `PROFILE:${key}`;
+    score = score + (1 - Date.now() / 1e13);
 
-  remove(id: number) {
-    return `This action removes a #${id} rank`;
+    return this.redis
+      .multi()
+      .zadd(zkey, score, uid)
+      .hset(hKey, { [uid]: JSON.stringify(data) })
+      .exec((err: any, res: any) => {
+        if (err) {
+          throw new HttpException(
+            'TRANSACTION_ERROR_WITH_REDIS_SET_KEY',
+            HttpStatus.INTERNAL_SERVER_ERROR,
+          );
+        }
+      });
   }
 }

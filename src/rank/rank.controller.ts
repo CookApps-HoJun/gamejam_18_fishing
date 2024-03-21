@@ -1,34 +1,28 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Req,
+} from '@nestjs/common';
 import { RankService } from './rank.service';
-import { CreateRankDto } from './dto/create-rank.dto';
-import { UpdateRankDto } from './dto/update-rank.dto';
+import { SetRankDto } from './dto/rank.set.dto';
+import { GetRankDto } from './dto/rank.get.dto';
 
 @Controller('rank')
 export class RankController {
   constructor(private readonly rankService: RankService) {}
 
-  @Post()
-  create(@Body() createRankDto: CreateRankDto) {
-    return this.rankService.create(createRankDto);
+  @Post('get')
+  get() {
+    return this.rankService.get();
   }
-
-  @Get()
-  findAll() {
-    return this.rankService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.rankService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRankDto: UpdateRankDto) {
-    return this.rankService.update(+id, updateRankDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.rankService.remove(+id);
+  @Post('set')
+  set(@Body() { key, score, data }: SetRankDto, @Req() { user }) {
+    const { uid } = user;
+    return this.rankService.set(key, score, uid, data);
   }
 }

@@ -8,7 +8,7 @@ services:
 
   redis:
     image: redis/redis-stack:7.2.0-v6
-    container_name: redistack
+    container_name: redis
     labels:
       - 'name=redis'
       - 'mode=standalone'
