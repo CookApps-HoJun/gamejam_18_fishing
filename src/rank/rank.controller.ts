@@ -17,8 +17,9 @@ export class RankController {
   constructor(private readonly rankService: RankService) {}
 
   @Post('get')
-  get() {
-    return this.rankService.get();
+  get(@Body() { key, limit }: GetRankDto, @Req() { user }) {
+    const { uid } = user;
+    return this.rankService.get(key, uid, limit);
   }
   @Post('set')
   set(@Body() { key, score, data }: SetRankDto, @Req() { user }) {
