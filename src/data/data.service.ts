@@ -18,7 +18,7 @@ export class DataService {
       return {
         uid,
         ...r,
-        [v.category]: v.data,
+        [v.category]: JSON.parse(v.data),
       };
     }, {});
   }
