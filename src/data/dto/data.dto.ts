@@ -1,18 +1,12 @@
-import { IsString } from 'class-validator';
+import { IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DataDto {
-  @ApiProperty({
-    example: 'user',
-    description: '카테고리',
-  })
-  @IsString()
+type data = {
   category: string;
+  data: string;
+};
 
-  @ApiProperty({
-    example: '{"level" : 1}',
-    description: '데이터',
-  })
-  @IsString()
-  data?: string;
+export class DataDto {
+  @IsArray()
+  data_list: data[];
 }

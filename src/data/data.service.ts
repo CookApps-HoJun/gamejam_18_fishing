@@ -22,9 +22,8 @@ export class DataService {
       };
     }, {});
   }
-  set(uid: number, { category, data }: DataDto) {
-    console.log({ uid, category, data });
-
-    return this.dataRepo.save({ uid, category, data });
+  async set(uid: number, { data_list }: DataDto) {
+    await this.dataRepo.save(data_list);
+    return 'OK';
   }
 }
