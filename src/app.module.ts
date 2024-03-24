@@ -14,6 +14,7 @@ import {
   TransformInterceptor,
 } from './common/interceptors';
 import { GlobalExceptionFilter } from './common/filters/global_exception.filter';
+import { SseModule } from './sse/sse.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { GlobalExceptionFilter } from './common/filters/global_exception.filter'
     AuthModule,
     DataModule,
     RankModule,
+    SseModule,
   ],
   controllers: [AppController],
   providers: [

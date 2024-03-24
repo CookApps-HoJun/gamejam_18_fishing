@@ -24,7 +24,7 @@ export class RankService {
       rank: +rank + 1,
       uid: +uid,
       score,
-      ...rankDetail,
+      data: rankDetail,
     };
   }
 
@@ -37,17 +37,19 @@ export class RankService {
       2,
     );
 
-    const rankList = (
-      await this.redis.hmget(hKey, ..._.map(result, ([uid, score]) => uid))
-    ).map((rankDetail, index) => {
-      const parsedDetail = JSON.parse(rankDetail);
-      return {
-        rank: index + 1,
-        uid: parseInt(result[index][0]),
-        score: parseInt(result[index][1]),
-        ...parsedDetail,
-      };
-    });
+    const rankList = result.length
+      ? (
+          await this.redis.hmget(hKey, ..._.map(result, ([uid, score]) => uid))
+        ).map((rankDetail, index) => {
+          const parsedDetail = JSON.parse(rankDetail);
+          return {
+            rank: index + 1,
+            uid: parseInt(result[index][0]),
+            score: parseInt(result[index][1]),
+            data: parsedDetail,
+          };
+        })
+      : [];
 
     const filterdByMyUid = rankList.filter((data) => data.uid === uid);
 
@@ -72,7 +74,7 @@ export class RankService {
     const hKey = `RANK:METADATA:`;
     score = score + (1 - Date.now() / 1e13);
 
-    return this.redis
+    await this.redis
       .multi()
       .zadd(zkey, score, uid)
       .hset(hKey, { [uid]: JSON.stringify(data) })
@@ -84,5 +86,7 @@ export class RankService {
           );
         }
       });
+
+    return 'OK';
   }
 }
