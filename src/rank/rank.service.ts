@@ -13,7 +13,7 @@ export class RankService {
     const hKey = `RANK:METADATA:`;
 
     const rank = await this.redis.zrevrank(zKey, uid);
-    const score = Math.floor(await this.redis.zscore(zKey, uid));
+    const score = Math.floor(+(await this.redis.zscore(zKey, uid)));
 
     if (!rank) {
       return {};
@@ -45,7 +45,7 @@ export class RankService {
           return {
             rank: index + 1,
             uid: parseInt(result[index][0]),
-            score: Math.floor(result[index][1]),
+            score: Math.floor(+result[index][1]),
             data: parsedDetail,
           };
         })
